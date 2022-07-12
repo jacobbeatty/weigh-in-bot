@@ -35,16 +35,22 @@ client.on("message", async (message) => {
       message.reply("New data captured for " + username + ".");
     }
     if (message.content.startsWith("$weigh-in")) {
-      const data = { currentWeight: message.content.split(" ")[1] };
       const query = await db.collection("discord").doc(discordId).get();
-      const percentageForUser = query.data().percentageLost.toFixed(2);
+      const currentWeight = message.content.split(" ")[1];
+      const startingWeight = query.data().startingWeight;
+      const data = {
+        currentWeight: currentWeight,
+        percentageLost:
+          ((startingWeight - currentWeight) / startingWeight) * 100,
+      };
       await db.collection("discord").doc(discordId).update(data);
+      // const percentageForUser = query.data().percentageLost.toFixed(2);
       message.reply(
         "Updated weight for " +
           message.author.username +
           ". " +
           "Your current loss percentage is: " +
-          percentageForUser
+          ((startingWeight - currentWeight) / startingWeight) * 100
       );
     }
     if (message.content.startsWith("$standings")) {
