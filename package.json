@@ -1,0 +1,16 @@
+{
+  "name": "weigh-in-bot",
+  "version": "1.0.0",
+  "description": "A discord bot used to track weight loss competitions.",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jacobbeatty.dev",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.8.1",
+    "dotenv": "^16.0.1",
+    "firebase-admin": "^11.0.0"
+  }
+}
