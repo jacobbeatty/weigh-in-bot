@@ -44,7 +44,6 @@ client.on("message", async (message) => {
           ((startingWeight - currentWeight) / startingWeight) * 100,
       };
       await db.collection("discord").doc(discordId).update(data);
-      // const percentageForUser = query.data().percentageLost.toFixed(2);
       message.reply(
         "Updated weight for " +
           message.author.username +
