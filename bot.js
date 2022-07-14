@@ -51,7 +51,7 @@ client.on("message", async (message) => {
           message.author.username +
           ". " +
           "Your current loss percentage is: " +
-          ((startingWeight - currentWeight) / startingWeight) * 100
+          (((startingWeight - currentWeight) / startingWeight) * 100).toFixed(2)
       );
     }
     if (message.content.startsWith("$standings")) {
