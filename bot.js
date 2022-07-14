@@ -40,8 +40,10 @@ client.on("message", async (message) => {
       const startingWeight = query.data().startingWeight;
       const data = {
         currentWeight: currentWeight,
-        percentageLost:
-          ((startingWeight - currentWeight) / startingWeight) * 100,
+        percentageLost: (
+          ((startingWeight - currentWeight) / startingWeight) *
+          100
+        ).toFixed(2),
       };
       await db.collection("discord").doc(discordId).update(data);
       message.reply(
@@ -60,10 +62,7 @@ client.on("message", async (message) => {
       const results = [];
       standings.forEach((doc) =>
         results.push(
-          doc.data().username +
-            ": " +
-            doc.data().percentageLost.toFixed(2) +
-            "%"
+          doc.data().username + ": " + doc.data().percentageLost + "%"
         )
       );
       message.reply("The current standings are:\n" + results.join("\n"));
