@@ -2,7 +2,12 @@ const admin = require("firebase-admin");
 require("dotenv").config();
 const { Client, Intents } = require("discord.js");
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  partials: ["CHANNEL"],
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGES,
+  ],
 });
 client.on("ready", () => {
   console.log(`Logged is as ${client.user.tag}!`);
@@ -17,13 +22,29 @@ client.on("message", async (message) => {
     return;
   }
   const discordId = message.author.id;
+  const usersRef = db.collection("users");
+  const discordIdToUser = usersRef.where("discordId", "==", discordId).get();
+  const docID = await discordIdToUser;
 
   try {
+    if (message.content.startsWith("$link")) {
+      const linkCode = message.content.split(" ")[1];
+      const queryRef = usersRef.where("linkCode", "==", linkCode);
+      const docName = await queryRef.get();
+
+      const data = {
+        discordId: discordId,
+      };
+      await db.collection("users").doc(docName.docs[0].id).update(data);
+      message.reply("Successfully linked.");
+    }
     if (message.content.startsWith("$new")) {
       const startingWeight = message.content.split(" ")[1];
       const currentWeight = message.content.split(" ")[2];
-      const percentageLost =
-        ((startingWeight - currentWeight) / startingWeight) * 100;
+      const percentageLost = (
+        ((startingWeight - currentWeight) / startingWeight) *
+        100
+      ).toFixed(2);
       const username = message.author.username;
       const data = {
         startingWeight: startingWeight,
@@ -31,7 +52,7 @@ client.on("message", async (message) => {
         percentageLost: percentageLost,
         username: username,
       };
-      await db.collection("discord").doc(discordId).set(data);
+      await db.collection("users").doc(docID.docs[0].id).update(data);
       message.reply("New data captured for " + username + ".");
     }
     if (message.content.startsWith("$weigh-in")) {
@@ -45,7 +66,7 @@ client.on("message", async (message) => {
           100
         ).toFixed(2),
       };
-      await db.collection("discord").doc(discordId).update(data);
+      await db.collection("users").doc(docID.docs[0].id).update(data);
       message.reply(
         "Updated weight for " +
           message.author.username +
@@ -55,7 +76,7 @@ client.on("message", async (message) => {
       );
     }
     if (message.content.startsWith("$standings")) {
-      const discordRef = db.collection("discord");
+      const discordRef = db.collection("users");
       const standings = await discordRef
         .orderBy("percentageLost", "desc")
         .get();
