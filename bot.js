@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const { FieldValue } = require("firebase-admin/firestore");
 require("dotenv").config();
 const { Client, Intents } = require("discord.js");
 const client = new Client({
@@ -34,10 +35,14 @@ client.on("message", async (message) => {
 
       const data = {
         discordId: discordId,
+        linkCode: FieldValue.delete(),
       };
       await db.collection("users").doc(docName.docs[0].id).update(data);
       message.reply("Successfully linked.");
     }
+
+    // start a new competition
+
     if (message.content.startsWith("$new")) {
       const startingWeight = message.content.split(" ")[1];
       const currentWeight = message.content.split(" ")[2];
@@ -59,7 +64,10 @@ client.on("message", async (message) => {
       const query = await db.collection("discord").doc(discordId).get();
       const currentWeight = message.content.split(" ")[1];
       const startingWeight = query.data().startingWeight;
+      const username = message.author.username;
+
       const data = {
+        username: username,
         currentWeight: currentWeight,
         percentageLost: (
           ((startingWeight - currentWeight) / startingWeight) *
